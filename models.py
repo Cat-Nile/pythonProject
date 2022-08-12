@@ -21,7 +21,6 @@ class Post(db.Model):
             'username': self.username,
             'title': self.title,
             'content': self.content,
-            'password': self.password,
             'created_at': self.created_at,
             'updated_at': self.updated_at
         }
