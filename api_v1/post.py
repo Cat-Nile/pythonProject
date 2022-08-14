@@ -1,7 +1,6 @@
 from flask import jsonify, request
 from models import Post, Comment, Word, db
 from datetime import datetime
-import re
 from . import api
 from . import notify
 
@@ -143,9 +142,8 @@ def create_comment(pid):
 
     # combine results with pagination
     results = {
-        "results": [
-            {"id": comment.id, "postid": comment.postid, "username": comment.username, "content": comment.content,
-             "parent_id": comment.parent_id, "created_at": comment.created_at} for comment in comments.items],
+        "results": [{"id": comment.id, "postid": comment.postid, "username": comment.username, "content": comment.content,
+                     "parent_id": comment.parent_id, "created_at": comment.created_at} for comment in comments.items],
         "pagination": {
             "page": page,
             "per_page": per_page
