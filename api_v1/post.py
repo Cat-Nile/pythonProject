@@ -1,8 +1,9 @@
 from flask import jsonify, request
-from models import Post, Comment, db
+from models import Post, Comment, Word, db
 from datetime import datetime
-
+import re
 from . import api
+from . import notify
 
 
 @api.route('/posts', methods=['GET', 'POST'])
@@ -28,6 +29,20 @@ def posts():
         post.password = password
         db.session.add(post)
         db.session.commit()
+
+        words = Word.query.all()
+        alarm_list = []
+        for word in words:
+            word_lists=word.word.split(',')
+            for word_list in word_lists:
+                if word_list in post.title or word_list in post.content:
+                    message = {word.username:post.id}
+                    alarm_list.append(message)
+                    break
+
+            if alarm_list:
+                notify.send_nofi(alarm_list)
+                print("키워드 알람이 발송되었습니다.")
 
         return jsonify(data), 201
 
@@ -88,3 +103,24 @@ def create_comment(pid):
 
     comments = Comment.query.filter(Comment.postid == pid)
     return jsonify([cmt.serialize for cmt in comments])
+
+
+@api.route('/keywords', methods=['GET', 'POST'])
+def keywords():
+    if request.method == 'POST':
+        data = request.get_json()
+        id = data.get('id')
+        username = data.get('username')
+        keyword = data.get('word')
+
+        word = Word()
+        word.id = id
+        word.username = username
+        word.word = keyword
+        db.session.add(word)
+        db.session.commit()
+
+        return jsonify(data), 201
+
+    words = Word.query.all()
+    return jsonify([word.serialize for word in words])
