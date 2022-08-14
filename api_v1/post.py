@@ -19,7 +19,7 @@ def posts():
         updated_at = data.get('updated_at')
 
         if not (username and title and content and password):
-            return jsonify({'error': 'No arguments!'}), 400
+            return jsonify({'error': 'Missing arguments!'}), 400
 
         post = Post()
         post.id = id
@@ -31,10 +31,12 @@ def posts():
         db.session.commit()
 
         words = Word.query.all()
-        alarm_list = []
+
         for word in words:
+            alarm_list = []
             word_lists = word.word.split(',')
             for word_list in word_lists:
+                word_list = word_list.strip()
                 if word_list in post.title or word_list in post.content:
                     message = {word.username: post.id}
                     alarm_list.append(message)
@@ -42,7 +44,6 @@ def posts():
 
             if alarm_list:
                 notify.send_nofi(alarm_list)
-                print("키워드 알람이 발송되었습니다.")
 
         return jsonify(data), 201
 
@@ -63,7 +64,7 @@ def post_detail(pid):
             Post.query.filter(Post.id == pid).delete()
             return jsonify(), 204
         else:
-            return "게시글의 비밀번호가 틀렸습니다.", 400
+            return jsonify({'error': 'Did not match with password!'})
 
     post = Post.query.filter(Post.id == pid).first()
     data = request.get_json()
@@ -85,7 +86,7 @@ def post_detail(pid):
         Post.query.filter(Post.id == pid).update(updated_data)
         return jsonify(updated_data)
     else:
-        return '게시글의 비밀번호가 틀렸습니다.', 400
+        return jsonify({'error': 'Did not match with password!'})
 
 
 @api.route("/posts/<pid>/comments", methods=["GET", "POST"])
@@ -107,6 +108,7 @@ def create_comment(pid):
             alarm_list = []
             word_lists = word.word.split(',')
             for word_list in word_lists:
+                word_list = word_list.strip()
                 if word_list in content:
                     message = {word.username: comment.id}
                     alarm_list.append(message)
@@ -114,7 +116,7 @@ def create_comment(pid):
 
             if alarm_list:
                 notify.send_nofi(alarm_list)
-                print(alarm_list, "키워드 알람이 발송되었습니다.")
+
         return jsonify(comment.serialize), 201
 
     comments = Comment.query.filter(Comment.postid == pid)
