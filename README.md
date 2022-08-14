@@ -61,7 +61,7 @@
     - DB 스키마 스크립트
     - DB를 이용한 키워드 알림 기능
 
-📌 Dependency
+📌 실행방법
 ```
 1. MySQL 8.0 설치
  - ID: 'root', host: 'localhost', password: 'test1234'로 설정함
