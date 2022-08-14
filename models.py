@@ -32,7 +32,8 @@ class Comment(db.Model):
     post = db.relationship('Post', backref='comment_set')
     username = db.Column(db.String(64), nullable=False)
     content = db.Column(db.Text)
-    parent_id = db.Column(db.Integer, nullable=True)
+    parent_id = db.Column(db.Integer, db.ForeignKey('comment.id'), index=True)
+    parent = db.relationship(lambda: Comment, remote_side=id, backref='sub_comments')
     created_at = db.Column(db.DateTime, default=datetime.now())
 
     @property
@@ -59,4 +60,3 @@ class Word(db.Model):
             'username': self.username,
             'word': self.word
         }
-

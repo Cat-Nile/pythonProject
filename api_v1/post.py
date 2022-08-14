@@ -19,7 +19,7 @@ def posts():
         updated_at = data.get('updated_at')
 
         if not (username and title and content and password):
-            return jsonify({'error': 'No arguments!'}), 400
+            return jsonify({'error': 'Missing arguments!'}), 400
 
         post = Post()
         post.id = id
@@ -31,10 +31,12 @@ def posts():
         db.session.commit()
 
         words = Word.query.all()
-        alarm_list = []
+
         for word in words:
+            alarm_list = []
             word_lists = word.word.split(',')
             for word_list in word_lists:
+                word_list = word_list.strip()
                 if word_list in post.title or word_list in post.content:
                     message = {word.username: post.id}
                     alarm_list.append(message)
@@ -42,12 +44,27 @@ def posts():
 
             if alarm_list:
                 notify.send_nofi(alarm_list)
-                print("키워드 알람이 발송되었습니다.")
-
         return jsonify(data), 201
 
-    posts = Post.query.all()
-    return jsonify([post.serialize for post in posts])
+    page = request.args.get("page", 1, type=int)
+    per_page = request.args.get("per-page", 5, type=int)
+
+    # query
+    posts = Post.query.paginate(page, per_page)
+
+    # combine results with pagination
+    results = {
+        "results": [{"id": post.id, "username": post.username, "title": post.title, "content": post.content,
+                     "created_at": post.created_at, "updated_at": post.updated_at} for post in posts.items],
+        "pagination": {
+            "page": page,
+            "per_page": per_page
+        },
+    }
+    return jsonify(results)
+
+    # posts = Post.query.all()
+    # return jsonify([post.serialize for post in posts])
 
 
 @api.route('/posts/<pid>', methods=['GET', 'PUT', 'DELETE'])
@@ -63,7 +80,7 @@ def post_detail(pid):
             Post.query.filter(Post.id == pid).delete()
             return jsonify(), 204
         else:
-            return "게시글의 비밀번호가 틀렸습니다.", 400
+            return jsonify({'error': 'Did not match with password!'})
 
     post = Post.query.filter(Post.id == pid).first()
     data = request.get_json()
@@ -85,7 +102,7 @@ def post_detail(pid):
         Post.query.filter(Post.id == pid).update(updated_data)
         return jsonify(updated_data)
     else:
-        return '게시글의 비밀번호가 틀렸습니다.', 400
+        return jsonify({'error': 'Did not match with password!'})
 
 
 @api.route("/posts/<pid>/comments", methods=["GET", "POST"])
@@ -107,6 +124,7 @@ def create_comment(pid):
             alarm_list = []
             word_lists = word.word.split(',')
             for word_list in word_lists:
+                word_list = word_list.strip()
                 if word_list in content:
                     message = {word.username: comment.id}
                     alarm_list.append(message)
@@ -114,11 +132,26 @@ def create_comment(pid):
 
             if alarm_list:
                 notify.send_nofi(alarm_list)
-                print(alarm_list, "키워드 알람이 발송되었습니다.")
+
         return jsonify(comment.serialize), 201
 
-    comments = Comment.query.filter(Comment.postid == pid)
-    return jsonify([cmt.serialize for cmt in comments])
+    page = request.args.get("page", 1, type=int)
+    per_page = request.args.get("per-page", 5, type=int)
+
+    # query
+    comments = Comment.query.paginate(page, per_page)
+
+    # combine results with pagination
+    results = {
+        "results": [
+            {"id": comment.id, "postid": comment.postid, "username": comment.username, "content": comment.content,
+             "parent_id": comment.parent_id, "created_at": comment.created_at} for comment in comments.items],
+        "pagination": {
+            "page": page,
+            "per_page": per_page
+        },
+    }
+    return jsonify(results)
 
 
 @api.route('/keywords', methods=['GET', 'POST'])
