@@ -33,10 +33,10 @@ def posts():
         words = Word.query.all()
         alarm_list = []
         for word in words:
-            word_lists=word.word.split(',')
+            word_lists = word.word.split(',')
             for word_list in word_lists:
                 if word_list in post.title or word_list in post.content:
-                    message = {word.username:post.id}
+                    message = {word.username: post.id}
                     alarm_list.append(message)
                     break
 
@@ -93,12 +93,28 @@ def create_comment(pid):
     if request.method == 'POST':
         post = Post.query.get_or_404(pid)
         data = request.get_json()
+        id = data.get('id')
         username = data.get('username')
         content = data.get('content')
         parent_id = data.get('parent_id')
-        comment = Comment(username=username, content=content, parent_id=parent_id, created_at=datetime.now())
+        comment = Comment(id=id, username=username, content=content, parent_id=parent_id, created_at=datetime.now())
         post.comment_set.append(comment)
         db.session.commit()
+
+        words = Word.query.all()
+
+        for word in words:
+            alarm_list = []
+            word_lists = word.word.split(',')
+            for word_list in word_lists:
+                if word_list in content:
+                    message = {word.username: comment.id}
+                    alarm_list.append(message)
+                    break
+
+            if alarm_list:
+                notify.send_nofi(alarm_list)
+                print(alarm_list, "키워드 알람이 발송되었습니다.")
         return jsonify(comment.serialize), 201
 
     comments = Comment.query.filter(Comment.postid == pid)
