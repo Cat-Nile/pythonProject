@@ -24,7 +24,7 @@
   - 댓글 기능이 있는 익명 게시판 키워드 알림 기능 구현
   - 아래의 요구사항을 만족하는 DB 테이블과 REST API를 만들어주세요.
     - 개발은 Python에 FastAPI 혹은 Flask로 구현해야 합니다.
-    - 데이터베이스는 MySQL, MariaDB 중 택일입니다.
+    - 데이터베이스는 MySQL, MariaDB 중 택 일입니다.(MySQL 선택)
     - 게시판 기능 
       - 게시판은 제목, 내용, 작성자 이름, 비밀번호, 작성일시, 수정일시로 구성되어 있습니다.
       - 로그인 기능 없이 작성자도 입력 파라미터로 받습니다.
@@ -56,20 +56,23 @@
   ### 🚥 개발 조건 
 
   #### 🙆‍♂️ 필수사항  
-    - Python, Flask, MySQL 5.7
+    - Python, Flask, MySQL 8.0
     - REST API 구현
     - DB 스키마 스크립트
     - DB를 이용한 키워드 알림 기능
 
 📌 Dependency
 ```
-1. 의존성 설치
+1. MySQL 8.0 설치
+ - ID: 'root', host: 'localhost', password: 'test1234'로 설정함
+  
+2. 의존성 설치
 pip install -r requirements.txt
 
-2. DB 스키마 생성
+3. DB 스키마 생성
 python create_db.py
 
-3. 앱 실행
+4. 앱 실행
 export FLASK_APP=app.py
 flask run
 
