@@ -18,12 +18,12 @@ def hello():
     return 'Hello world!'
 
 
-basedir = os.path.abspath(os.path.dirname(__file__))
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:test1234@localhost/board'
 # app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = 'ThisIsMyNewSecretKey'
+app.config['SECRET_KEY'] = 'ThisIsMySecretKey'
 
 db.init_app(app)
 db.app = app
