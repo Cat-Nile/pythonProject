@@ -43,7 +43,11 @@ def posts():
 
             if alarm_list:
                 notify.send_nofi(alarm_list)
-        return jsonify(data), 201
+        return jsonify({"username": username,
+                        "title": title,
+                        "content": content,
+                        "alarm": alarm_list
+                        }), 201
 
     page = request.args.get("page", 1, type=int)
     per_page = request.args.get("per-page", 5, type=int)
@@ -132,7 +136,13 @@ def create_comment(pid):
             if alarm_list:
                 notify.send_nofi(alarm_list)
 
-        return jsonify(comment.serialize), 201
+        return jsonify({
+            "id": id,
+            "username": username,
+            "content": content,
+            "parent_id": parent_id,
+            "alarm": alarm_list
+        }), 201
 
     page = request.args.get("page", 1, type=int)
     per_page = request.args.get("per-page", 5, type=int)
@@ -142,8 +152,13 @@ def create_comment(pid):
 
     # combine results with pagination
     results = {
-        "results": [{"id": comment.id, "postid": comment.postid, "username": comment.username, "content": comment.content,
-                     "parent_id": comment.parent_id, "created_at": comment.created_at} for comment in comments.items],
+        "results": [{"id": comment.id,
+                     "postid": comment.postid,
+                     "username": comment.username,
+                     "content": comment.content,
+                     "parent_id": comment.parent_id,
+                     "created_at": comment.created_at
+                     } for comment in comments.items],
         "pagination": {
             "page": page,
             "per_page": per_page
