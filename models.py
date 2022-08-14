@@ -29,7 +29,7 @@ class Post(db.Model):
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     postid = db.Column(db.Integer, db.ForeignKey('posts.id', ondelete='CASCADE'))
-    post = db.relationship('Post', backref = 'comment_set')
+    post = db.relationship('Post', backref='comment_set')
     username = db.Column(db.String(64), nullable=False)
     content = db.Column(db.Text)
     parent_id = db.Column(db.Integer, nullable=True)
@@ -45,3 +45,18 @@ class Comment(db.Model):
             'parent_id': self.parent_id,
             'created_at': self.created_at
         }
+
+
+class Word(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    username = db.Column(db.String(64), nullable=False)
+    word = db.Column(db.Text, nullable=False)
+
+    @property
+    def serialize(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'word': self.word
+        }
+
