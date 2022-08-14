@@ -2,6 +2,7 @@ import os
 
 from flask import Flask, render_template
 from api_v1 import api as api_v1
+
 from models import db
 
 app = Flask(__name__)
@@ -17,13 +18,12 @@ def hello():
     return 'Hello world!'
 
 
-basedir = os.path.abspath(os.path.dirname(__file__))
-dbfile = os.path.join(basedir, 'db.sqlite')
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + dbfile
-app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = 'ThisIsMyNewSecretKey'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:test1234@localhost/board'
+# app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = 'ThisIsMySecretKey'
 
 db.init_app(app)
 db.app = app
